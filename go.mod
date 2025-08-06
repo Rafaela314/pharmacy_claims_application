@@ -1,6 +1,6 @@
 module github.com/pharmacy_claims_application
 
-go 1.23.11
+go 1.23
 
 require (
 	github.com/jackc/pgx/v5 v5.7.5
