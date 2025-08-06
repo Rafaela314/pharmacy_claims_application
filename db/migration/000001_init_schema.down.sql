@@ -1,13 +1,12 @@
--- Drop foreign key constraints
-ALTER TABLE "reversals" DROP CONSTRAINT IF EXISTS reversals_claim_id_fkey;
-ALTER TABLE "pharmacies" DROP CONSTRAINT IF EXISTS pharmacies_claim_id_fkey;
-
 -- Drop indexes
 DROP INDEX IF EXISTS claims_ndc_idx;
 DROP INDEX IF EXISTS claims_npi_idx;
 DROP INDEX IF EXISTS claims_ndc_npi_idx;
 
--- Drop tables
-DROP TABLE IF EXISTS "reversals";
-DROP TABLE IF EXISTS "pharmacies";
-DROP TABLE IF EXISTS "claims";
+-- Drop tables in order to avoid FK conflicts
+DROP TABLE IF EXISTS reversals;
+DROP TABLE IF EXISTS claims;
+DROP TABLE IF EXISTS pharmacies;
+
+-- Optionally, drop the UUID extension if no longer needed
+DROP EXTENSION IF EXISTS "uuid-ossp";
