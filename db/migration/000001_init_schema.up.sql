@@ -7,13 +7,13 @@ CREATE TABLE "claims" (
   "timestamp" timestamp NOT NULL DEFAULT (now())
 );
 
-CREATE TABLE "revert" (
+CREATE TABLE "reversals" (
   "id" varchar PRIMARY KEY NOT NULL,
   "claim_id" varchar NOT NULL,
   "timestamp" timestamp NOT NULL DEFAULT (now())
 );
 
-CREATE TABLE "pharmacy" (
+CREATE TABLE "pharmacies" (
   "npi" varchar PRIMARY KEY NOT NULL,
   "chain" varchar NOT NULL
 );
@@ -24,6 +24,6 @@ CREATE INDEX ON "claims" ("npi");
 
 CREATE INDEX ON "claims" ("ndc", "npi");
 
-ALTER TABLE "revert" ADD FOREIGN KEY ("claim_id") REFERENCES "claims" ("id");
+ALTER TABLE "reversals" ADD FOREIGN KEY ("claim_id") REFERENCES "claims" ("id");
 
-ALTER TABLE "pharmacy" ADD FOREIGN KEY ("npi") REFERENCES "claims" ("npi");
+ALTER TABLE "pharmacies" ADD FOREIGN KEY ("npi") REFERENCES "claims" ("id");
