@@ -174,13 +174,46 @@ http://localhost:8080
     "price": 15.99
   }
   ```
+- **Response:**
+  ```json
+  {
+    "status": "claim submitted",
+    "claim_id": "abc123"
+  }
+  ```
 
-### Response Format
-```json
-{
-  "status": "claim reversed",
-  "claim_id": "abc123"
-}
+**Get Claim**
+- **GET** `/api/v1/claims/{id}`
+- **Response:**
+  ```json
+  {
+    "status": "claim retrieved",
+    "claim_id": "abc123",
+    "claim": {
+      "id": "abc123",
+      "ndc": "123456789",
+      "quantity": 30,
+      "npi": "9876543210",
+      "price": 15.99,
+      "timestamp": "2024-01-01T12:00:00Z"
+    }
+  }
+  ```
+
+**Create Reversal**
+- **POST** `/api/v1/reversals`
+- **Body:**
+  ```json
+  {
+    "claim_id": "abc123"
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "status": "claim reversed",
+    "claim_id": "abc123"
+  }
   ```  
 
 **Get Claim**
@@ -207,8 +240,47 @@ http://localhost:8080
 ### Error Response Format
 ```json
 {
-  "success": false,
-  "error": "Error message"
+  "status": "error",
+  "message": "Specific error description",
+  "code": 400
+}
+```
+
+### Common Error Examples
+
+**Invalid JSON:**
+```json
+{
+  "status": "error",
+  "message": "Invalid JSON format in request body",
+  "code": 400
+}
+```
+
+**Missing Required Fields:**
+```json
+{
+  "status": "error",
+  "message": "NDC (National Drug Code) is required",
+  "code": 400
+}
+```
+
+**Invalid UUID:**
+```json
+{
+  "status": "error",
+  "message": "Invalid claim ID format. Must be a valid UUID",
+  "code": 400
+}
+```
+
+**Claim Not Found:**
+```json
+{
+  "status": "error",
+  "message": "Claim not found",
+  "code": 404
 }
 ```
 

@@ -22,9 +22,10 @@ func writeJSON(w http.ResponseWriter, statusCode int, data interface{}) {
 
 // writeError writes an error response
 func writeError(w http.ResponseWriter, statusCode int, message string) {
-	response := APIResponse{
-		Success: false,
-		Error:   message,
+	response := map[string]interface{}{
+		"status":  "error",
+		"message": message,
+		"code":    statusCode,
 	}
 
 	writeJSON(w, statusCode, response)

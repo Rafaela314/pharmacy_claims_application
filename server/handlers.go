@@ -3,8 +3,10 @@ package server
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	sqlc "github.com/pharmacy_claims_application/db/sqlc"
 )
 
@@ -28,13 +30,18 @@ func (server *Server) createClaim(w http.ResponseWriter, r *http.Request) {
 	var req CreateClaimRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		writeError(w, http.StatusBadRequest, "Invalid request body")
+		writeError(w, http.StatusBadRequest, "Invalid JSON format in request body")
 		return
 	}
 
-	// Basic validation
-	if req.NDC == "" || req.Quantity <= 0 || req.NPI == "" {
-		writeError(w, http.StatusBadRequest, "ndc, npi and quantity are required")
+	// Basic validation with specific error messages
+	if req.NDC == "" {
+		writeError(w, http.StatusBadRequest, "NDC (National Drug Code) is required")
+		return
+	}
+
+	if req.NPI == "" {
+		writeError(w, http.StatusBadRequest, "NPI (National Provider Identifier) is required")
 		return
 	}
 
@@ -62,29 +69,38 @@ func (server *Server) createClaim(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := APIResponse{
-		Success: true,
-		Message: "Claim created successfully",
-		Data:    convertDBClaimToAPI(claim),
+	response := map[string]interface{}{
+		"status":   "claim submitted",
+		"claim_id": claim.ID.String(),
 	}
 
 	writeJSON(w, http.StatusCreated, response)
 }
 
-/*
 // getClaim handles GET /api/v1/claims/{id}
 func (server *Server) getClaim(w http.ResponseWriter, r *http.Request) {
 	// Extract ID from URL path
 	pathParts := strings.Split(r.URL.Path, "/")
 	if len(pathParts) < 5 {
-		writeError(w, http.StatusBadRequest, "Invalid claim ID")
+		writeError(w, http.StatusBadRequest, "Invalid URL format. Expected: /api/v1/claims/{id}")
 		return
 	}
 
 	id := pathParts[4]
+	if id == "" {
+		writeError(w, http.StatusBadRequest, "Claim ID cannot be empty")
+		return
+	}
+
+	// Parse UUID
+	claimID, err := uuid.Parse(id)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "Invalid claim ID format. Must be a valid UUID")
+		return
+	}
 
 	// Get claim from database
-	claim, err := server.store.GetClaim(r.Context(), id)
+	claim, err := server.store.GetClaim(r.Context(), claimID)
 	if err != nil {
 		writeError(w, http.StatusNotFound, "Claim not found")
 		return
@@ -103,29 +119,27 @@ func (server *Server) createReversal(w http.ResponseWriter, r *http.Request) {
 	var req CreateReversalRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		writeError(w, http.StatusBadRequest, "Invalid request body")
+		writeError(w, http.StatusBadRequest, "Invalid JSON format in request body")
 		return
 	}
 
 	// Basic validation
-	if req.ClaimID == "" {
-		writeError(w, http.StatusBadRequest, "Claim ID is required")
+	if req.ClaimID == uuid.Nil {
+		writeError(w, http.StatusBadRequest, "Claim ID is required and must be a valid UUID")
 		return
 	}
 
 	// Create reversal in database
-	reversal, err := server.store.CreateReversal(r.Context(), req.ClaimID)
+	_, err := server.store.CreateReversal(r.Context(), req.ClaimID)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "Failed to create reversal")
 		return
 	}
 
-	response := APIResponse{
-		Success: true,
-		Message: "Reversal created successfully",
-		Data:    convertDBReversalToAPI(reversal),
+	response := map[string]interface{}{
+		"status":   "claim reversed",
+		"claim_id": req.ClaimID.String(),
 	}
 
 	writeJSON(w, http.StatusCreated, response)
 }
-*/

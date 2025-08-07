@@ -30,8 +30,8 @@ func (server *Server) setupRoutes() {
 
 	// API endpoints
 	server.router.HandleFunc("POST /api/v1/claims", server.createClaim)
-	// server.router.HandleFunc("GET /api/v1/claims/{id}", server.getClaim)
-	// server.router.HandleFunc("POST /api/v1/reversals", server.createReversal)
+	server.router.HandleFunc("GET /api/v1/claims/{id}", server.getClaim)
+	server.router.HandleFunc("POST /api/v1/reversals", server.createReversal)
 }
 
 func (server *Server) Start(config util.Config) error {
