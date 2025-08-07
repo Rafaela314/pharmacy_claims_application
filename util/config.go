@@ -17,7 +17,18 @@ func LoadConfig(path string) (config Config, err error) {
 
 	err = viper.ReadInConfig()
 	if err != nil {
-		return
+		// Try to find the config file in common locations
+		viper.Reset()
+		viper.AddConfigPath(".")
+		viper.AddConfigPath("./")
+		viper.AddConfigPath("../")
+		viper.SetConfigName("app")
+		viper.SetConfigType("env")
+
+		err = viper.ReadInConfig()
+		if err != nil {
+			return
+		}
 	}
 
 	err = viper.Unmarshal(&config)
