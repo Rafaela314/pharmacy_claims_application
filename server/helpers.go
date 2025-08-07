@@ -21,11 +21,18 @@ func writeJSON(w http.ResponseWriter, statusCode int, data interface{}) {
 }
 
 // writeError writes an error response
-func writeError(w http.ResponseWriter, statusCode int, message string) {
+func writeError(w http.ResponseWriter, statusCode int, message string, details ...map[string]interface{}) {
 	response := map[string]interface{}{
 		"status":  "error",
 		"message": message,
 		"code":    statusCode,
+	}
+
+	// Add additional details if provided
+	if len(details) > 0 {
+		for key, value := range details[0] {
+			response[key] = value
+		}
 	}
 
 	writeJSON(w, statusCode, response)

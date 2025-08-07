@@ -216,6 +216,52 @@ http://localhost:8080
   }
   ```
 
+### Error Responses
+
+The API provides detailed error responses to help users understand what went wrong:
+
+**Invalid JSON Format:**
+```json
+{
+  "status": "error",
+  "message": "Invalid JSON format in request body",
+  "code": 400,
+  "expected_format": "JSON object with fields: ndc (string), npi (string), quantity (integer), price (number)",
+  "example": {
+    "ndc": "123456789",
+    "npi": "9876543210",
+    "quantity": 30,
+    "price": 15.99
+  }
+}
+```
+
+**Field Validation Error:**
+```json
+{
+  "status": "error",
+  "message": "NDC (National Drug Code) is required",
+  "code": 400,
+  "field": "ndc",
+  "type": "string",
+  "description": "National Drug Code identifier",
+  "example": "123456789"
+}
+```
+
+**UUID Format Error:**
+```json
+{
+  "status": "error",
+  "message": "Invalid claim ID format. Must be a valid UUID",
+  "code": 400,
+  "field": "claim_id",
+  "type": "string (UUID)",
+  "format": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+  "example": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
 ## Event Logging
 
 All claim submissions and reversals are automatically logged to `logs/pharmacy_events.json` in JSON format.

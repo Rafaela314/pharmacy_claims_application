@@ -31,28 +31,56 @@ func (server *Server) createClaim(w http.ResponseWriter, r *http.Request) {
 	var req CreateClaimRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		writeError(w, http.StatusBadRequest, "Invalid JSON format in request body")
+		writeError(w, http.StatusBadRequest, "Invalid JSON format in request body", map[string]interface{}{
+			"expected_format": "JSON object with fields: ndc (string), npi (string), quantity (integer), price (number)",
+			"example": map[string]interface{}{
+				"ndc":      "123456789",
+				"npi":      "9876543210",
+				"quantity": 30,
+				"price":    15.99,
+			},
+		})
 		return
 	}
 
 	// Basic validation with specific error messages
 	if req.NDC == "" {
-		writeError(w, http.StatusBadRequest, "NDC (National Drug Code) is required")
+		writeError(w, http.StatusBadRequest, "NDC (National Drug Code) is required", map[string]interface{}{
+			"field":       "ndc",
+			"type":        "string",
+			"description": "National Drug Code identifier",
+			"example":     "123456789",
+		})
 		return
 	}
 
 	if req.NPI == "" {
-		writeError(w, http.StatusBadRequest, "NPI (National Provider Identifier) is required")
+		writeError(w, http.StatusBadRequest, "NPI (National Provider Identifier) is required", map[string]interface{}{
+			"field":       "npi",
+			"type":        "string",
+			"description": "National Provider Identifier",
+			"example":     "9876543210",
+		})
 		return
 	}
 
 	if req.Quantity <= 0 {
-		writeError(w, http.StatusBadRequest, "Quantity must be greater than 0")
+		writeError(w, http.StatusBadRequest, "Quantity must be greater than 0", map[string]interface{}{
+			"field":     "quantity",
+			"type":      "integer",
+			"min_value": 1,
+			"example":   30,
+		})
 		return
 	}
 
 	if req.Price < 0 {
-		writeError(w, http.StatusBadRequest, "Price cannot be negative")
+		writeError(w, http.StatusBadRequest, "Price cannot be negative", map[string]interface{}{
+			"field":     "price",
+			"type":      "number",
+			"min_value": 0,
+			"example":   15.99,
+		})
 		return
 	}
 
@@ -101,7 +129,12 @@ func (server *Server) getClaim(w http.ResponseWriter, r *http.Request) {
 	// Parse UUID
 	claimID, err := uuid.Parse(id)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, "Invalid claim ID format. Must be a valid UUID")
+		writeError(w, http.StatusBadRequest, "Invalid claim ID format. Must be a valid UUID", map[string]interface{}{
+			"field":   "claim_id",
+			"type":    "string (UUID)",
+			"format":  "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+			"example": "550e8400-e29b-41d4-a716-446655440000",
+		})
 		return
 	}
 
@@ -125,13 +158,23 @@ func (server *Server) createReversal(w http.ResponseWriter, r *http.Request) {
 	var req CreateReversalRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		writeError(w, http.StatusBadRequest, "Invalid JSON format in request body")
+		writeError(w, http.StatusBadRequest, "Invalid JSON format in request body", map[string]interface{}{
+			"expected_format": "JSON object with field: claim_id (string, UUID format)",
+			"example": map[string]interface{}{
+				"claim_id": "550e8400-e29b-41d4-a716-446655440000",
+			},
+		})
 		return
 	}
 
 	// Basic validation
 	if req.ClaimID == uuid.Nil {
-		writeError(w, http.StatusBadRequest, "Claim ID is required and must be a valid UUID")
+		writeError(w, http.StatusBadRequest, "Claim ID is required and must be a valid UUID", map[string]interface{}{
+			"field":   "claim_id",
+			"type":    "string (UUID)",
+			"format":  "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+			"example": "550e8400-e29b-41d4-a716-446655440000",
+		})
 		return
 	}
 
