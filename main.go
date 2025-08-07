@@ -9,6 +9,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pharmacy_claims_application/db"
+	"github.com/pharmacy_claims_application/logger"
 	"github.com/pharmacy_claims_application/seeder"
 	"github.com/pharmacy_claims_application/server"
 	"github.com/pharmacy_claims_application/util"
@@ -31,13 +32,19 @@ func main() {
 	// Create database store
 	store := db.NewStore(conn)
 
+	// Initialize logger
+	eventLogger, err := logger.NewLogger("logs")
+	if err != nil {
+		log.Printf("Warning: failed to initialize logger: %v", err)
+	}
+
 	// Seed database with pharmacy data if empty
 	if err := seeder.SeedPharmacies(store, "data"); err != nil {
 		log.Printf("Warning: failed to seed pharmacies: %v", err)
 	}
 
 	// Create and start server
-	server := server.NewServer(store)
+	server := server.NewServer(store, eventLogger)
 
 	// Start server in a goroutine
 	go func() {

@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -69,6 +70,11 @@ func (server *Server) createClaim(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Log the claim submission event
+	if err := server.logger.LogClaimSubmission(claim.ID, req.NDC, req.NPI, req.Quantity, req.Price); err != nil {
+		log.Printf("Warning: failed to log claim submission: %v", err)
+	}
+
 	response := map[string]interface{}{
 		"status":   "claim submitted",
 		"claim_id": claim.ID.String(),
@@ -134,6 +140,11 @@ func (server *Server) createReversal(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "Failed to create reversal")
 		return
+	}
+
+	// Log the claim reversal event
+	if err := server.logger.LogClaimReversal(req.ClaimID); err != nil {
+		log.Printf("Warning: failed to log claim reversal: %v", err)
 	}
 
 	response := map[string]interface{}{

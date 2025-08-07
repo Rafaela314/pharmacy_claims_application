@@ -6,18 +6,21 @@ import (
 	"time"
 
 	"github.com/pharmacy_claims_application/db"
+	"github.com/pharmacy_claims_application/logger"
 	"github.com/pharmacy_claims_application/util"
 )
 
 type Server struct {
 	store  db.Store
 	router *http.ServeMux
+	logger *logger.Logger
 }
 
-func NewServer(store db.Store) *Server {
+func NewServer(store db.Store, logger *logger.Logger) *Server {
 	server := &Server{
 		store:  store,
 		router: http.NewServeMux(),
+		logger: logger,
 	}
 
 	server.setupRoutes()

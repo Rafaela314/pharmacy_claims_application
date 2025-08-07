@@ -214,7 +214,41 @@ http://localhost:8080
     "status": "claim reversed",
     "claim_id": "abc123"
   }
-  ```  
+  ```
+
+## Event Logging
+
+All claim submissions and reversals are automatically logged to `logs/pharmacy_events.json` in JSON format.
+
+### Event Log Format
+
+**Claim Submission Event:**
+```json
+{
+  "id": "event-uuid",
+  "type": "claim_submitted",
+  "timestamp": "2024-01-01T12:00:00Z",
+  "data": {
+    "claim_id": "claim-uuid",
+    "ndc": "123456789",
+    "npi": "9876543210",
+    "quantity": 30,
+    "price": 15.99
+  }
+}
+```
+
+**Claim Reversal Event:**
+```json
+{
+  "id": "event-uuid",
+  "type": "claim_reversed",
+  "timestamp": "2024-01-01T12:00:00Z",
+  "data": {
+    "claim_id": "claim-uuid"
+  }
+}
+```  
 
 **Get Claim**
 - **GET** `/api/v1/claims/{id}`
