@@ -136,6 +136,9 @@ This project requires the following tools to be installed on your system:
     ```migrate -path db/migration -database "postgresql://root:your_password@localhost:5432/pharmacy_claims?sslmode=disable" -verbose up
      ```
 
+    ```migrate -path db/migration -database "postgresql://root:your_password@localhost:5433/pharmacy_claims?sslmode=disable" -verbose up
+     ```     
+
 5. Generate SQL code:
    ```bash
    sqlc generate

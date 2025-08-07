@@ -34,21 +34,79 @@ func createRandomClaim(t *testing.T) Claim {
 	return claim
 }
 
-func TestCreateClaim(t *testing.T) {
-	createRandomClaim(t)
+func TestGetClaim(t *testing.T) {
+	runTestWithTransaction(t, func(t *testing.T, txQueries *Queries) {
+		// Create pharmacy within transaction
+		pharmacyArg := CreatePharmacyParams{
+			NPI:   util.RandomNumericString(10),
+			Chain: util.RandomString(10),
+		}
+		pharmacy, err := txQueries.CreatePharmacy(context.Background(), pharmacyArg)
+		require.NoError(t, err)
+		require.NotEmpty(t, pharmacy)
+
+		// Create claim within transaction
+		claimArg := CreateClaimParams{
+			NDC:      util.RandomString(11),
+			Price:    util.RandomMoney(),
+			Quantity: util.RandomInt(1, 1000),
+			NPI:      pharmacy.NPI,
+		}
+		claim1, err := txQueries.CreateClaim(context.Background(), claimArg)
+		require.NoError(t, err)
+		require.NotEmpty(t, claim1)
+
+		// Test retrieval within the same transaction
+		claim2, err := txQueries.GetClaim(context.Background(), claim1.ID)
+		require.NoError(t, err)
+		require.NotEmpty(t, claim2)
+
+		require.Equal(t, claim1.ID, claim2.ID)
+		require.Equal(t, claim1.NDC, claim2.NDC)
+		require.Equal(t, claim1.NPI, claim2.NPI)
+		require.Equal(t, claim1.Price, claim2.Price)
+		require.Equal(t, claim1.Quantity, claim2.Quantity)
+
+		require.WithinDuration(t, claim1.Timestamp, claim2.Timestamp, time.Second)
+	})
 }
 
-func TestGetClaim(t *testing.T) {
-	claim1 := createRandomClaim(t)
-	claim2, err := testQueries.GetClaim(context.Background(), claim1.ID)
-	require.NoError(t, err)
-	require.NotEmpty(t, claim2)
+// TestCreateClaimWithTransaction demonstrates transaction-based testing
+func TestCreateClaimWithTransaction(t *testing.T) {
+	runTestWithTransaction(t, func(t *testing.T, txQueries *Queries) {
+		// Create pharmacy within transaction
+		pharmacyArg := CreatePharmacyParams{
+			NPI:   util.RandomNumericString(10),
+			Chain: util.RandomString(10),
+		}
+		pharmacy, err := txQueries.CreatePharmacy(context.Background(), pharmacyArg)
+		require.NoError(t, err)
+		require.NotEmpty(t, pharmacy)
 
-	require.Equal(t, claim1.ID, claim2.ID)
-	require.Equal(t, claim1.NDC, claim2.NDC)
-	require.Equal(t, claim1.NPI, claim2.NPI)
-	require.Equal(t, claim1.Price, claim2.Price)
-	require.Equal(t, claim1.Quantity, claim2.Quantity)
+		// Create claim within transaction
+		claimArg := CreateClaimParams{
+			NDC:      util.RandomString(11),
+			Price:    util.RandomMoney(),
+			Quantity: util.RandomInt(1, 1000),
+			NPI:      pharmacy.NPI,
+		}
+		claim, err := txQueries.CreateClaim(context.Background(), claimArg)
+		require.NoError(t, err)
+		require.NotEmpty(t, claim)
 
-	require.WithinDuration(t, claim1.Timestamp, claim2.Timestamp, time.Second)
+		// Verify the claim was created correctly
+		require.Equal(t, claimArg.NDC, claim.NDC)
+		require.Equal(t, claimArg.Price, claim.Price)
+		require.Equal(t, claimArg.NPI, claim.NPI)
+		require.Equal(t, claimArg.Quantity, claim.Quantity)
+		require.NotZero(t, claim.ID)
+		require.NotZero(t, claim.Timestamp)
+
+		// Test that we can retrieve the claim within the same transaction
+		retrievedClaim, err := txQueries.GetClaim(context.Background(), claim.ID)
+		require.NoError(t, err)
+		require.Equal(t, claim.ID, retrievedClaim.ID)
+		require.Equal(t, claim.NDC, retrievedClaim.NDC)
+	})
+	// Transaction is automatically rolled back here, so no data persists
 }
