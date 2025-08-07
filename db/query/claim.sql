@@ -9,3 +9,7 @@ RETURNING *;
 -- name: GetClaim :one
 SELECT * FROM claims
 WHERE id = $1 LIMIT 1;
+
+-- name: DeleteClaim :exec
+DELETE FROM claims
+WHERE id = $1;

@@ -8,7 +8,7 @@ package db
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const createReversal = `-- name: CreateReversal :one
@@ -20,11 +20,21 @@ INSERT INTO reversals (
 RETURNING id, claim_id, timestamp
 `
 
-func (q *Queries) CreateReversal(ctx context.Context, claimID pgtype.UUID) (Reversal, error) {
+func (q *Queries) CreateReversal(ctx context.Context, claimID uuid.UUID) (Reversal, error) {
 	row := q.db.QueryRow(ctx, createReversal, claimID)
 	var i Reversal
 	err := row.Scan(&i.ID, &i.ClaimID, &i.Timestamp)
 	return i, err
+}
+
+const deleteReversal = `-- name: DeleteReversal :exec
+DELETE FROM reversals
+WHERE id = $1
+`
+
+func (q *Queries) DeleteReversal(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteReversal, id)
+	return err
 }
 
 const getReversalByClaimID = `-- name: GetReversalByClaimID :one
@@ -32,7 +42,7 @@ SELECT id, claim_id, timestamp FROM reversals
 WHERE claim_id = $1 LIMIT 1
 `
 
-func (q *Queries) GetReversalByClaimID(ctx context.Context, claimID pgtype.UUID) (Reversal, error) {
+func (q *Queries) GetReversalByClaimID(ctx context.Context, claimID uuid.UUID) (Reversal, error) {
 	row := q.db.QueryRow(ctx, getReversalByClaimID, claimID)
 	var i Reversal
 	err := row.Scan(&i.ID, &i.ClaimID, &i.Timestamp)

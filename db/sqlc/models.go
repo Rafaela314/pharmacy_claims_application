@@ -5,25 +5,28 @@
 package db
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 type Claim struct {
-	ID        pgtype.UUID      `json:"id"`
-	NDC       string           `json:"ndc"`
-	Quantity  int32            `json:"quantity"`
-	NPI       string           `json:"npi"`
-	Price     pgtype.Numeric   `json:"price"`
-	Timestamp pgtype.Timestamp `json:"timestamp"`
+	ID        uuid.UUID `json:"id"`
+	NDC       string    `json:"ndc"`
+	Quantity  int64     `json:"quantity"`
+	NPI       string    `json:"npi"`
+	Price     float64   `json:"price"`
+	Timestamp time.Time `json:"timestamp"`
 }
 
 type Pharmacy struct {
-	NPI   string `json:"npi"`
-	Chain string `json:"chain"`
+	NPI       string    `json:"npi"`
+	Chain     string    `json:"chain"`
+	Timestamp time.Time `json:"timestamp"`
 }
 
 type Reversal struct {
-	ID        pgtype.UUID      `json:"id"`
-	ClaimID   pgtype.UUID      `json:"claim_id"`
-	Timestamp pgtype.Timestamp `json:"timestamp"`
+	ID        uuid.UUID `json:"id"`
+	ClaimID   uuid.UUID `json:"claim_id"`
+	Timestamp time.Time `json:"timestamp"`
 }

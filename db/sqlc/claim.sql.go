@@ -8,7 +8,7 @@ package db
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const createClaim = `-- name: CreateClaim :one
@@ -21,10 +21,10 @@ RETURNING id, ndc, quantity, npi, price, timestamp
 `
 
 type CreateClaimParams struct {
-	NDC      string         `json:"ndc"`
-	Quantity int32          `json:"quantity"`
-	NPI      string         `json:"npi"`
-	Price    pgtype.Numeric `json:"price"`
+	NDC      string  `json:"ndc"`
+	Quantity int64   `json:"quantity"`
+	NPI      string  `json:"npi"`
+	Price    float64 `json:"price"`
 }
 
 func (q *Queries) CreateClaim(ctx context.Context, arg CreateClaimParams) (Claim, error) {
@@ -46,12 +46,22 @@ func (q *Queries) CreateClaim(ctx context.Context, arg CreateClaimParams) (Claim
 	return i, err
 }
 
+const deleteClaim = `-- name: DeleteClaim :exec
+DELETE FROM claims
+WHERE id = $1
+`
+
+func (q *Queries) DeleteClaim(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteClaim, id)
+	return err
+}
+
 const getClaim = `-- name: GetClaim :one
 SELECT id, ndc, quantity, npi, price, timestamp FROM claims
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetClaim(ctx context.Context, id pgtype.UUID) (Claim, error) {
+func (q *Queries) GetClaim(ctx context.Context, id uuid.UUID) (Claim, error) {
 	row := q.db.QueryRow(ctx, getClaim, id)
 	var i Claim
 	err := row.Scan(
