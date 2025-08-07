@@ -9,3 +9,6 @@ RETURNING *;
 -- name: GetPharmacy :one
 SELECT * FROM pharmacies
 WHERE npi = $1 LIMIT 1;
+
+-- name: CountPharmacies :one
+SELECT COUNT(*) FROM pharmacies;
