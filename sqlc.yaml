@@ -14,4 +14,15 @@ sql:
           npi: "NPI"
           id: "ID"
           claim_id: "ClaimID"
+        overrides:
+          - db_type: "uuid"
+            go_type:
+              import: "github.com/google/uuid"
+              type: "UUID"
+          - db_type: "timestamptz"
+            nullable: false
+            go_type:
+              import: "time"
+              type: "Time"    
+  
       
