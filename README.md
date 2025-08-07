@@ -126,19 +126,115 @@ This project requires the following tools to be installed on your system:
 2. Navigate to the project directory
 3. Start the PostgreSQL database using Docker:
    ```bash
-   docker run --name pharmacy-db -e POSTGRES_PASSWORD=your_password -e POSTGRES_DB=pharmacy_claims -p 5432:5432 -d postgres
+   docker run --name pharmacy-db -e POSTGRES_PASSWORD=your_password -e POSTGRES_USER=root -e POSTGRES_DB=pharmacy_claims -p 5432:5432 -d postgres
    ```
    
    The PostgreSQL Docker image can be found on Docker Hub: [https://hub.docker.com/_/postgres](https://hub.docker.com/_/postgres)
 
-4. Run the application:
+
+4. Run database migrations:
+    ```migrate -path db/migration -database "postgresql://root:your_password@localhost:5432/pharmacy_claims?sslmode=disable" -verbose up
+     ```
+
+5. Generate SQL code:
+   ```bash
+   sqlc generate
+   ```
+
+8. Run the application:
    ```bash
    go run main.go
    ```
 
+## API Documentation
+
+The application provides a RESTful API for managing pharmacy claims.
+
+### Base URL
+```
+http://localhost:8080
+```
+
+### Endpoints
+
+#### Health Check
+- **GET** `/health`
+- Returns server health status
+
+#### Claims Management
+
+**Create Claim**
+- **POST** `/api/v1/claims`
+- **Body:**
+  ```json
+  {
+    "ndc": "123456789",
+    "quantity": 30,
+    "npi": "9876543210",
+    "price": 15.99
+  }
+  ```
+
+### Response Format
+```json
+{
+  "status": "claim reversed",
+  "claim_id": "abc123"
+}
+  ```  
+
+**Get Claim**
+- **GET** `/api/v1/claims/{id}`
+- Returns a specific claim by ID
+
+**Create Reversal**
+- **POST** `/api/v1/reversals`
+- **Body:** 
+  ```json
+  {
+   "claim_id": "abc123"
+  }
+
+
+### Response Format
+```json
+{
+  "status": "claim reversed",
+  "claim_id": "abc123"
+}
+  ```
+
+### Error Response Format
+```json
+{
+  "success": false,
+  "error": "Error message"
+}
+```
+
 ## Project Structure
 
 - `main.go` - Main application entry point
+- `env.example` - Environment variables template
+
+## Environment Variables
+
+This project uses environment variables for database configuration. You can set them in several ways:
+
+1. **Create a `.env` file** (recommended):
+   ```bash
+   cp env.example .env
+   # Edit .env file with your credentials
+   ```
+
+2. **Export environment variables**:
+   ```bash
+   export DB_PASSWORD=your_secure_password
+   export DB_USER=root
+   export DB_NAME=pharmacy_claims
+   ```
+
+**Security Note**: Never commit passwords to version control. The `.env` file is already in `.gitignore`.
 
 ## Requirements
 
