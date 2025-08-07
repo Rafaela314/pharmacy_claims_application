@@ -1,0 +1,114 @@
+{
+	"info": {
+		"_postman_id": "2273a66a-d403-42fd-bd8e-c9a8cf58e2cf",
+		"name": "Pharmacy_Claims",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "7302443"
+	},
+	"item": [
+		{
+			"name": "Create claim",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"ndc\": \"00093752910\", \n    \"npi\": \"4444444444\", \n    \"quantity\": 90, \n    \"price\": 60849.0\n}\n\n\t",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/claims",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"claims"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create reversal",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"ndc\": \"00093752910\", \n    \"npi\": \"4444444444\", \n    \"quantity\": 90, \n    \"price\": 60849.0\n}\n\n\t",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/claims",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"claims"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get claim",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/v1/claims/cedff531-8e04-4c5d-a4f2-ca65287025a0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"claims",
+						"cedff531-8e04-4c5d-a4f2-ca65287025a0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get health checker",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/v1/claims/cedff531-8e04-4c5d-a4f2-ca65287025a0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"claims",
+						"cedff531-8e04-4c5d-a4f2-ca65287025a0"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
