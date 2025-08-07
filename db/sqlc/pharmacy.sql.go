@@ -9,6 +9,17 @@ import (
 	"context"
 )
 
+const countPharmacies = `-- name: CountPharmacies :one
+SELECT COUNT(*) FROM pharmacies
+`
+
+func (q *Queries) CountPharmacies(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countPharmacies)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createPharmacy = `-- name: CreatePharmacy :one
 INSERT INTO pharmacies (
   npi, chain

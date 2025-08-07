@@ -1,9 +1,6 @@
 package server
 
 import (
-	"context"
-	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -30,16 +27,16 @@ func NewServer(store db.Store) *Server {
 func (server *Server) setupRoutes() {
 	// Health check endpoint
 	server.router.HandleFunc("GET /health", server.healthCheck)
-	
+
 	// API endpoints
-	server.router.HandleFunc("POST /api/v1/claim", server.createClaim)
-	server.router.HandleFunc("GET /api/v1/claim/{id}", server.getClaim)
-	server.router.HandleFunc("POST /api/v1/reversal", server.createReversal)
+	server.router.HandleFunc("POST /api/v1/claims", server.createClaim)
+	// server.router.HandleFunc("GET /api/v1/claims/{id}", server.getClaim)
+	// server.router.HandleFunc("POST /api/v1/reversals", server.createReversal)
 }
 
 func (server *Server) Start(config util.Config) error {
 	serverWithMiddleware := server.loggingMiddleware(server.router)
-	
+
 	srv := &http.Server{
 		Addr:         config.ServerAddress,
 		Handler:      serverWithMiddleware,
@@ -56,12 +53,12 @@ func (server *Server) Start(config util.Config) error {
 func (server *Server) loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-		
+
 		// Create a custom response writer to capture status code
 		wrapped := &responseWriter{ResponseWriter: w, statusCode: http.StatusOK}
-		
+
 		next.ServeHTTP(wrapped, r)
-		
+
 		log.Printf(
 			"%s %s %d %v",
 			r.Method,
@@ -81,4 +78,4 @@ type responseWriter struct {
 func (rw *responseWriter) WriteHeader(code int) {
 	rw.statusCode = code
 	rw.ResponseWriter.WriteHeader(code)
-} 
+}
