@@ -1,29 +1,26 @@
-CREATE TABLE "claims" (
-  "id" varchar PRIMARY KEY NOT NULL,
-  "ndc" varchar NOT NULL,
-  "quantity" int NOT NULL,
-  "npi" varchar NOT NULL,
-  "price" decimal(15,2),
-  "timestamp" timestamp NOT NULL DEFAULT (now())
+-- Enable UUID generation
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE pharmacies (
+  npi VARCHAR PRIMARY KEY NOT NULL,
+  chain VARCHAR NOT NULL
 );
 
-CREATE TABLE "reversals" (
-  "id" varchar PRIMARY KEY NOT NULL,
-  "claim_id" varchar NOT NULL,
-  "timestamp" timestamp NOT NULL DEFAULT (now())
+CREATE TABLE claims (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  ndc VARCHAR NOT NULL,
+  quantity INT NOT NULL,
+  npi VARCHAR NOT NULL REFERENCES pharmacies(npi) ON DELETE CASCADE,
+  price DECIMAL(15,2),
+  timestamp TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE "pharmacies" (
-  "npi" varchar PRIMARY KEY NOT NULL,
-  "chain" varchar NOT NULL
+CREATE TABLE reversals (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  claim_id UUID NOT NULL REFERENCES claims(id) ON DELETE CASCADE,
+  timestamp TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX ON "claims" ("ndc");
-
-CREATE INDEX ON "claims" ("npi");
-
-CREATE INDEX ON "claims" ("ndc", "npi");
-
-ALTER TABLE "reversals" ADD FOREIGN KEY ("claim_id") REFERENCES "claims" ("id");
-
-ALTER TABLE "pharmacies" ADD FOREIGN KEY ("npi") REFERENCES "claims" ("id");
+CREATE INDEX claims_ndc_idx ON claims (ndc);
+CREATE INDEX claims_npi_idx ON claims (npi);
+CREATE INDEX claims_ndc_npi_idx ON claims (ndc, npi);
